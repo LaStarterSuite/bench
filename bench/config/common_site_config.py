@@ -120,7 +120,7 @@ def make_ports(bench_path):
 					value = urlparse(value).port
 
 				if value:
-					existing_ports.setdefault(key, []).append(value)
+					existing_ports.setdefault(key, []).append(int(value))
 
 	# new port value = max of existing port value + 1
 	ports = {}
