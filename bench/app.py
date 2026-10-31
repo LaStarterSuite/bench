@@ -628,7 +628,7 @@ def make_resolution_plan(app: App, bench: "Bench"):
 def get_excluded_apps(bench_path="."):
 	try:
 		with open(os.path.join(bench_path, "sites", "excluded_apps.txt")) as f:
-			return f.read().strip().split("\n")
+			return [line.strip().replace(" ", "") for line in f if line.strip()]
 	except OSError:
 		return []
 

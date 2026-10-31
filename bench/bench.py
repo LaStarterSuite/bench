@@ -89,7 +89,7 @@ class Bench(Base, Validator):
 	def excluded_apps(self) -> List:
 		try:
 			with open(self.excluded_apps_txt) as f:
-				return f.read().strip().split("\n")
+				return [line.strip().replace(" ", "") for line in f if line.strip()]
 		except Exception:
 			return []
 
