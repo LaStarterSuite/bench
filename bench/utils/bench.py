@@ -135,7 +135,7 @@ def _generate_dev_deps_pattern(pyproject_path):
 	return requirements_pattern
 
 
-def update_yarn_packages(bench_path=".", apps=None, verbose=None, check_files=False):
+def update_yarn_packages(bench_path=".", apps=None, verbose=None, check_files=True):
 	import bench.cli as bench_cli
 	from bench.bench import Bench
 

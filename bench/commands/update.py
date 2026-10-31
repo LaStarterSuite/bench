@@ -20,9 +20,9 @@ from bench.utils.bench import post_upgrade, patch_sites, build_assets
 	help="Update requirements. If run alone, equivalent to `bench setup requirements`",
 )
 @click.option(
-	"--check-files",
-	is_flag=True,
-	help="Run `yarn install --check-files` while installing node dependencies (slower)",
+	"--check-files/--no-check-files",
+	default=True,
+	help="Run `yarn install --check-files` while installing node dependencies (slower but reconciles node_modules). Enabled by default.",
 )
 @click.option(
 	"--restart-supervisor", is_flag=True, help="Restart supervisor processes after update"

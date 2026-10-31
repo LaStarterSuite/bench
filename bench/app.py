@@ -237,7 +237,7 @@ class App(AppMeta):
 		restart_bench=True,
 		ignore_resolution=False,
 		using_cached=False,
-		check_files=False,
+		check_files=True,
 	):
 		import bench.cli
 		from bench.utils.app import get_app_name
@@ -670,7 +670,7 @@ def get_app(
 	resolve_deps=False,
 	cache_key=None,
 	compress_artifacts=False,
-	check_files=False,
+	check_files=True,
 ):
 	"""bench get-app clones a Frappe App from remote (GitHub or any other git server),
 	and installs it on the current bench. This also resolves dependencies based on the
@@ -804,6 +804,7 @@ def install_resolved_deps(
 	bench_path=".",
 	skip_assets=False,
 	verbose=False,
+	check_files=True,
 ):
 	from bench.utils.app import check_existing_dir
 
@@ -907,7 +908,7 @@ def install_app(
 	skip_assets=False,
 	resolution=UNSET_ARG,
 	using_cached=False,
-	check_files=False,
+	check_files=True,
 ):
 	import bench.cli as bench_cli
 	from bench.bench import Bench
