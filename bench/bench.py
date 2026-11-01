@@ -478,16 +478,27 @@ class BenchSetup(Base):
 		bench_dir = os.path.abspath(self.bench.name)
 		user = self.bench.conf.get("frappe_user")
 		logfile = os.path.join(bench_dir, "logs", "backup.log")
-		system_crontab = CronTab(user=user)
-		backup_command = f"cd {bench_dir} && {sys.argv[0]} --verbose --site all backup"
-		job_command = f"{backup_command} >> {logfile} 2>&1"
+		try:
+			system_crontab = CronTab(user=user)
+			backup_command = f"cd {bench_dir} && {sys.argv[0]} --verbose --site all backup"
+			job_command = f"{backup_command} >> {logfile} 2>&1"
 
-		if job_command not in str(system_crontab):
-			job = system_crontab.new(
-				command=job_command, comment="bench auto backups set for every 6 hours"
+			if job_command not in str(system_crontab):
+				job = system_crontab.new(
+					command=job_command, comment="bench auto backups set for every 6 hours"
+				)
+				job.every(6).hours()
+				system_crontab.write()
+		except OSError:
+			import click
+
+			logger.warning("Setting up the backups cronjob failed", exc_info=True)
+			click.secho(
+				"Could not set up the backups cronjob because crontab is not writable"
+				" with the current permissions. Set it up later with `bench setup backups`.",
+				fg="yellow",
 			)
-			job.every(6).hours()
-			system_crontab.write()
+			return
 
 		logger.log("backups were set up")
 
