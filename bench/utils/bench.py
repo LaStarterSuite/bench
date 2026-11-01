@@ -809,3 +809,69 @@ def cache_clear() -> None:
 
 def get_dir_size(p: Path) -> int:
 	return sum(i.stat(follow_symlinks=False).st_size for i in p.iterdir())
+
+def symlink_app_assets(bench_path=".", apps=None):
+	"""Create `sites/assets/<app>` symlinks to each app's `public` folder.
+
+	Existing links are left untouched, so it is safe to run repeatedly.
+	Apps without a `public` folder are skipped.
+	"""
+	bench_path = os.path.abspath(bench_path)
+	apps_path = os.path.join(bench_path, "apps")
+	assets_path = os.path.join(bench_path, "sites", "assets")
+
+	if not os.path.isdir(apps_path):
+		click.secho(f"No apps folder found at {apps_path}", fg="red")
+		sys.exit(1)
+
+	os.makedirs(assets_path, exist_ok=True)
+
+	if not apps:
+		apps = sorted(
+			entry
+			for entry in os.listdir(apps_path)
+			if os.path.isdir(os.path.join(apps_path, entry))
+		)
+
+	for app in apps:
+		app_path = os.path.join(apps_path, app)
+		if not os.path.isdir(app_path):
+			click.secho(f"App {app} not found in {apps_path}", fg="red")
+			continue
+
+		module_path = None
+		if os.path.exists(os.path.join(app_path, app, "hooks.py")):
+			module_path = os.path.join(app_path, app)
+		else:
+			for entry in sorted(os.listdir(app_path)):
+				if os.path.exists(os.path.join(app_path, entry, "hooks.py")):
+					module_path = os.path.join(app_path, entry)
+					break
+
+		if not module_path:
+			click.secho(f"Skipping {app}: no app module found under {app_path}", fg="yellow")
+			continue
+
+		app_name = os.path.basename(module_path)
+		public_path = os.path.join(module_path, "public")
+		asset_link = os.path.join(assets_path, app_name)
+
+		if not os.path.isdir(public_path):
+			click.secho(f"Skipping {app_name}: no public folder in {module_path}", fg="yellow")
+			continue
+
+		if os.path.islink(asset_link):
+			if os.path.realpath(asset_link) == os.path.realpath(public_path):
+				continue
+			if not os.path.exists(asset_link):
+				os.remove(asset_link)
+			else:
+				click.secho(f"Skipping {asset_link}: symlink points elsewhere", fg="yellow")
+				continue
+		elif os.path.exists(asset_link):
+			click.secho(f"Skipping {asset_link}: it exists and is not a symlink", fg="yellow")
+			continue
+
+		link_target = os.path.relpath(public_path, assets_path)
+		os.symlink(link_target, asset_link)
+		click.secho(f"Linked {asset_link} -> {link_target}", fg="green")
