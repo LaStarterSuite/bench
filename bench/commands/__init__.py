@@ -95,6 +95,7 @@ from bench.commands.utils import (
 	set_ssl_certificate_key,
 	set_url_root,
 	start,
+	symlink_app_asset,
 )
 
 bench_command.add_command(start)
@@ -115,6 +116,7 @@ bench_command.add_command(bench_src)
 bench_command.add_command(find_benches)
 bench_command.add_command(migrate_env)
 bench_command.add_command(app_cache_helper)
+bench_command.add_command(symlink_app_asset)
 
 from bench.commands.setup import setup
 

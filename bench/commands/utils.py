@@ -194,3 +194,13 @@ def app_cache_helper(clear=False, remove_app="", remove_key=""):
 	from bench.utils.bench import cache_helper
 
 	cache_helper(clear, remove_app, remove_key)
+
+
+@click.command(
+	"symlink-app-asset", help="Symlink sites/assets/<app> to each app's public folder"
+)
+@click.argument("apps", nargs=-1)
+def symlink_app_asset(apps):
+	from bench.utils.bench import symlink_app_assets
+
+	symlink_app_assets(apps=apps)
