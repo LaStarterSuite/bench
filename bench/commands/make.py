@@ -163,6 +163,11 @@ def drop(path):
 	default=False,
 	help="Whether to gzip get-app artifacts that are to be cached",
 )
+@click.option(
+	"--check-files/--no-check-files",
+	default=True,
+	help="Run `yarn install --check-files` while installing the app's node dependencies (slower but reconciles node_modules). Enabled by default.",
+)
 def get_app(
 	git_url,
 	branch,
@@ -174,6 +179,7 @@ def get_app(
 	resolve_deps=False,
 	cache_key=None,
 	compress_artifacts=False,
+	check_files=True,
 ):
 	"clone an app from the internet and set it up in your bench"
 	from bench.app import get_app
@@ -188,6 +194,7 @@ def get_app(
 		resolve_deps=resolve_deps,
 		cache_key=cache_key,
 		compress_artifacts=compress_artifacts,
+		check_files=check_files,
 	)
 
 

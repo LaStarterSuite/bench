@@ -237,6 +237,7 @@ class App(AppMeta):
 		restart_bench=True,
 		ignore_resolution=False,
 		using_cached=False,
+		check_files=True,
 	):
 		import bench.cli
 		from bench.utils.app import get_app_name
@@ -260,6 +261,7 @@ class App(AppMeta):
 			restart_bench=restart_bench,
 			resolution=self.local_resolution,
 			using_cached=using_cached,
+			check_files=check_files,
 		)
 
 	@step(title="Cloning and installing {repo}", success="App {repo} Installed")
@@ -668,6 +670,7 @@ def get_app(
 	resolve_deps=False,
 	cache_key=None,
 	compress_artifacts=False,
+	check_files=True,
 ):
 	"""bench get-app clones a Frappe App from remote (GitHub or any other git server),
 	and installs it on the current bench. This also resolves dependencies based on the
@@ -758,6 +761,7 @@ def get_app(
 			skip_assets=skip_assets,
 			restart_bench=restart_bench,
 			using_cached=True,
+			check_files=check_files,
 		)
 		return
 
@@ -784,7 +788,12 @@ def get_app(
 		or overwrite
 		or click.confirm("Do you want to reinstall the existing application?")
 	):
-		app.install(verbose=verbose, skip_assets=skip_assets, restart_bench=restart_bench)
+		app.install(
+			verbose=verbose,
+			skip_assets=skip_assets,
+			restart_bench=restart_bench,
+			check_files=check_files,
+		)
 
 	app.set_cache(compress_artifacts)
 
@@ -795,6 +804,7 @@ def install_resolved_deps(
 	bench_path=".",
 	skip_assets=False,
 	verbose=False,
+	check_files=True,
 ):
 	from bench.utils.app import check_existing_dir
 
@@ -898,6 +908,7 @@ def install_app(
 	skip_assets=False,
 	resolution=UNSET_ARG,
 	using_cached=False,
+	check_files=True,
 ):
 	import bench.cli as bench_cli
 	from bench.bench import Bench
@@ -958,7 +969,9 @@ def install_app(
 		)
 
 	if not using_cached and os.path.exists(os.path.join(app_path, "package.json")):
-		yarn_install = "yarn install --check-files"
+		yarn_install = "yarn install"
+		if check_files:
+			yarn_install += " --check-files"
 		if verbose:
 			yarn_install += " --verbose"
 		bench.run(yarn_install, cwd=app_path)

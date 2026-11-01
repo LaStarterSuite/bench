@@ -61,7 +61,7 @@ def get_venv_path(verbose=False, python="python3"):
 		log("venv cannot be found", level=2)
 
 
-def update_node_packages(bench_path=".", apps=None, verbose=None):
+def update_node_packages(bench_path=".", apps=None, verbose=None, check_files=False):
 	print("Updating node packages...")
 	from distutils.version import LooseVersion
 
@@ -74,7 +74,9 @@ def update_node_packages(bench_path=".", apps=None, verbose=None):
 	if v < LooseVersion("11.x.x-develop"):
 		update_npm_packages(bench_path, apps=apps, verbose=verbose)
 	else:
-		update_yarn_packages(bench_path, apps=apps, verbose=verbose)
+		update_yarn_packages(
+			bench_path, apps=apps, verbose=verbose, check_files=check_files
+		)
 
 
 def install_python_dev_dependencies(bench_path=".", apps=None, verbose=False):
@@ -133,7 +135,7 @@ def _generate_dev_deps_pattern(pyproject_path):
 	return requirements_pattern
 
 
-def update_yarn_packages(bench_path=".", apps=None, verbose=None):
+def update_yarn_packages(bench_path=".", apps=None, verbose=None, check_files=True):
 	import bench.cli as bench_cli
 	from bench.bench import Bench
 
@@ -152,7 +154,9 @@ def update_yarn_packages(bench_path=".", apps=None, verbose=None):
 		app_path = os.path.join(apps_dir, app)
 		if os.path.exists(os.path.join(app_path, "package.json")):
 			click.secho(f"\nInstalling node dependencies for {app}", fg="yellow")
-			yarn_install = "yarn install --check-files"
+			yarn_install = "yarn install"
+			if check_files:
+				yarn_install += " --check-files"
 			if verbose:
 				yarn_install += " --verbose"
 			bench.run(yarn_install, cwd=app_path)
@@ -451,6 +455,7 @@ def update(
 	reset: bool = False,
 	restart_supervisor: bool = False,
 	restart_systemd: bool = False,
+	check_files: bool = False,
 ):
 	"""command: bench update"""
 	import re
@@ -497,7 +502,7 @@ def update(
 
 	if requirements:
 		print("Setting up requirements...")
-		bench.setup.requirements()
+		bench.setup.requirements(check_files=check_files)
 
 	if patch:
 		print("Patching sites...")

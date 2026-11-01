@@ -492,7 +492,7 @@ class BenchSetup(Base):
 		logger.log("backups were set up")
 
 	@job(title="Setting Up Bench Dependencies", success="Bench Dependencies Set Up")
-	def requirements(self, apps=None):
+	def requirements(self, apps=None, check_files=False):
 		"""Install and upgrade specified / all installed apps on given Bench"""
 		from bench.app import App
 
@@ -505,7 +505,10 @@ class BenchSetup(Base):
 		for app in apps:
 			path_to_app = os.path.join(self.bench.name, "apps", app)
 			app = App(path_to_app, bench=self.bench, to_clone=False).install(
-				skip_assets=True, restart_bench=False, ignore_resolution=True
+				skip_assets=True,
+				restart_bench=False,
+				ignore_resolution=True,
+				check_files=check_files,
 			)
 
 	def python(self, apps=None):
@@ -545,11 +548,13 @@ class BenchSetup(Base):
 			else:
 				self.run(f"{self.bench.python} -m pip install {quiet_flag} --upgrade -e {app_path}", env=env)
 
-	def node(self, apps=None):
+	def node(self, apps=None, check_files=False):
 		"""Install and upgrade Node dependencies for specified / all apps on given Bench"""
 		from bench.utils.bench import update_node_packages
 
-		return update_node_packages(bench_path=self.bench.name, apps=apps)
+		return update_node_packages(
+			bench_path=self.bench.name, apps=apps, check_files=check_files
+		)
 
 
 class BenchTearDown:

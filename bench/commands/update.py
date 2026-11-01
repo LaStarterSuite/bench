@@ -20,6 +20,11 @@ from bench.utils.bench import post_upgrade, patch_sites, build_assets
 	help="Update requirements. If run alone, equivalent to `bench setup requirements`",
 )
 @click.option(
+	"--check-files/--no-check-files",
+	default=True,
+	help="Run `yarn install --check-files` while installing node dependencies (slower but reconciles node_modules). Enabled by default.",
+)
+@click.option(
 	"--restart-supervisor", is_flag=True, help="Restart supervisor processes after update"
 )
 @click.option(
@@ -47,6 +52,7 @@ def update(
 	patch,
 	build,
 	requirements,
+	check_files,
 	restart_supervisor,
 	restart_systemd,
 	no_backup,
@@ -62,6 +68,7 @@ def update(
 		patch=patch,
 		build=build,
 		requirements=requirements,
+		check_files=check_files,
 		restart_supervisor=restart_supervisor,
 		restart_systemd=restart_systemd,
 		backup=not no_backup,
